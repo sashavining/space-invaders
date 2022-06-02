@@ -131,6 +131,10 @@ class Invasion {
         this.populateInvaders();
         player1.draw(); // this should eventually go in the game logic
         this.x += this.dx
+        if (this.x + (49 * this.totalColumns) >= canvas.width || this.x < 0) {
+            this.dx *= -1
+            this.y += 8
+        }
         requestAnimationFrame(this.move)
         // need to repopulate the array constantly??
     }
