@@ -4,7 +4,38 @@ const ctx = canvas.getContext('2d');
 canvas.height = 600;
 canvas.width = 800;
 
+class Player {
+    constructor() {
+        this.x = canvas.width / 2 - 25;
+        this.y = canvas.height - 50;
+        this.dx = 3;
+        this.height = 40;
+        this.width = 40;
+        this.lives = 3;
+        this.sprite = new Image()
+        this.spriteLoaded = false;
+        this.sprite.onload = () => this.spriteLoaded = true
+        this.sprite.src = 'icons/player_ship.png'
+    }
+    draw () {
+        if (this.spriteLoaded) {
+            ctx.drawImage(this.sprite, this.x, this.y);
+        }
+    }
+    hit () {
+        this.lives --
+        if (this.lives <= 0) {
+            this.die();
+        }
+    }
+    die () {
+        console.log('literally DED')
+    }
 
+}
+
+const player1 = new Player
+player1.draw();
 /*Current goals:
 - enemies that move back and forth
     - two different types, plus UFO 
@@ -33,12 +64,14 @@ class Alien {
         this.y = y;
         this.spriteUrl = spriteUrl;
         this.status = 1;
+        this.sprite = new Image()
+        this.spriteLoaded = false;
+        this.sprite.onload = () => this.spriteLoaded = true
+        this.sprite.src = this.spriteUrl
     }
     draw () {
-        let image = new Image()
-        image.src = this.spriteUrl
-        image.onload = () => {
-            ctx.drawImage(image, this.x, this.y);
+        if (this.spriteLoaded) {
+            ctx.drawImage(this.sprite, this.x, this.y);
         }
     }
     die () {
@@ -53,18 +86,18 @@ class Invasion {
     constructor (totalRows, totalColumns) {
         this.x = 130;
         this.y = 30;
-        this.dx = 3;
+        this.dx = 2;
         this.dy = 0;
         this.invadersArray = []
         this.totalRows = totalRows;
         this.totalColumns = totalColumns;
     }
     populateInvaders () {
-        // ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // how to make sure they don't streak across the page?
         // only draw the invaders where status === 1
         for (let column = 0; column < this.totalColumns; column++) {
-            this.invadersArray[column] = [];
+            if (!this.invadersArray[column]) {
+                this.invadersArray[column] = [];
+            }
             for (let row = 0; row < this.totalRows; row++) {
                 let spriteUrl;
                 switch (row) {
@@ -81,17 +114,23 @@ class Invasion {
                         spriteUrl = 'icons/alien_two.png';
                         break;
                 }
-                this.invadersArray[column][row] = new Alien (this.x + column * 50, this.y + row * 50, spriteUrl);
-                this.invadersArray[column][row].draw();
+                if (!this.invadersArray[column][row]) {
+                    this.invadersArray[column][row] = new Alien (this.x + column * 50, this.y + row * 50, spriteUrl);               
+                }
+                if (this.invadersArray[column][row].status === 1) {
+                    this.invadersArray[column][row].x = this.x + column * 50
+                    this.invadersArray[column][row].y = this.y + row * 50
+                    this.invadersArray[column][row].draw();    
+                }
             }
         } 
 
     }   
     move = () => {
-       //  ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // this should eventually go in the game logic
         this.populateInvaders();
-        this.x += 1
-        console.log(this.x)
+        player1.draw(); // this should eventually go in the game logic
+        this.x += this.dx
         requestAnimationFrame(this.move)
         // need to repopulate the array constantly??
     }
@@ -109,37 +148,7 @@ invasion.move();
     status changes to 0 when it's hit.
 */
 
-class Player {
-    constructor() {
-        this.x = canvas.width / 2 - 25;
-        this.y = canvas.height - 50;
-        this.dx = 3;
-        this.height = 40;
-        this.width = 40;
-        this.lives = 3;
-        this.spriteUrl = 'icons/player_ship.png'
-    }
-    draw () {
-        let sprite = new Image()
-        sprite.src = this.spriteUrl
-        sprite.onload = () => {
-            ctx.drawImage(sprite, this.x, this.y);
-        }
-    }
-    hit () {
-        this.lives --
-        if (this.lives <= 0) {
-            this.die();
-        }
-    }
-    die () {
-        console.log('literally DED')
-    }
 
-}
-
-const player1 = new Player
-player1.draw();
 /* make a class player
 has an x attribute, y attribute, dx, 
 has a detectCollision function
