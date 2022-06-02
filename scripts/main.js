@@ -94,6 +94,7 @@ class Invasion {
         }
     } 
     move = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.populateInvaders();
         this.x += 1
         console.log(this.x)
