@@ -82,17 +82,11 @@ class Invasion {
                         break;
                 }
                 this.invadersArray[column][row] = new Alien (this.x + column * 50, this.y + row * 50, spriteUrl);
-            }
-        } 
-        this.drawInvaders();
-    }   
-    drawInvaders () {
-        for (let column = 0; column < this.totalColumns; column++) {
-            for (let row = 0; row < this.totalRows; row++) {
                 this.invadersArray[column][row].draw();
             }
-        }
-    } 
+        } 
+
+    }   
     move = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.populateInvaders();
