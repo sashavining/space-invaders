@@ -5,7 +5,7 @@ canvas.height = 600;
 canvas.width = 800;
 
 
-/*Goals before Recurse interview:
+/*Current goals:
 - enemies that move back and forth
     - two different types, plus UFO 
 - barriers that break down (?)
@@ -88,7 +88,7 @@ class Invasion {
 
     }   
     move = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+       //  ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.populateInvaders();
         this.x += 1
         console.log(this.x)
@@ -144,7 +144,7 @@ player1.draw();
 has an x attribute, y attribute, dx, 
 has a detectCollision function
 
-DURING THE INTERVIEW - add the shoot() function. 
+LATER - add the shoot() function. 
     Is it a constructor that makes a bullet? - which is a line.
     it has a status (0 or 1). Default status is 1, but if it successfully hits an alien, it is 0.
     Then the bullet has a checkHit method?
