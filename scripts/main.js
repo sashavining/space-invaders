@@ -36,28 +36,36 @@ class Player {
 
 const player1 = new Player
 player1.draw();
-/*Current goals:
-- enemies that move back and forth
-    - two different types, plus UFO 
-- barriers that break down (?)
-*/
 
-/*
-THINGS I NEED TO KNOW HOW TO DO --
+class Bullet {
+    constructor (x, y, width, height, direction) {
+        this.x = x;
+        this.y = y;
+        this.direction = direction; // doesn't do anything yet, but I can use it when the player is able to shoot.
+        this.width = width;
+        this.height = height;
+    }
+    draw () {
+        ctx.beginPath()
+        ctx.rect(this.x, this.y, this.width, this.height)
+        ctx.fillStyle = '#ffffff';
+        ctx.closePath();
+        ctx.fill();
+    } 
+    move () { 
+        this.draw();
+        this.y += 5
+    }
+    checkForHit(target) { 
+        if (this.y + length >= target.y && this.x < target.x + 50 && this.x > target.x) {
+            return true 
+        } else return false;
+    }
+    checkOverflowCanvas () {
+        return (this.y >= canvas.height)
+    }
+}
 
-how to have things happen at a random time interval?
-
-*/
-
-/* make a class Invasion
-    has x, y, dx, and dy attributes
-    has a detectCollision function so it bounces back and forth
-    when detectCollision goes, it speeds up and goes the opposite direction.
-    the whole invasion can shoot from columns (y coordinates)
-    this is where the array of Aliens can go - checks whether a column of aliens has any alien with status :1. If it does, it can shoot from there
-    can checkWin & Win if the x coordinate is high enough (check this every time it speeds up)
-    has a hit() method that the bullet class can access. If it is hit at a specific location, that alien's status becomes 0.
-*/
 class Alien {
     constructor (x, y, spriteUrl) {
         this.x = x;
@@ -77,23 +85,20 @@ class Alien {
     die () {
         this.status = 0;
     }
-    shoot () {
-        // make a class bullet, that can hit the player.
-    }
 }
 
 class Invasion {
     constructor (totalRows, totalColumns) {
         this.x = 130;
         this.y = 30;
-        this.dx = 2;
+        this.dx = 1;
         this.dy = 0;
         this.invadersArray = []
         this.totalRows = totalRows;
         this.totalColumns = totalColumns;
+        this.randomNum = 0;
     }
     populateInvaders () {
-        // only draw the invaders where status === 1
         for (let column = 0; column < this.totalColumns; column++) {
             if (!this.invadersArray[column]) {
                 this.invadersArray[column] = [];
@@ -127,44 +132,53 @@ class Invasion {
 
     }   
     move = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // this should eventually go in the game logic
         this.populateInvaders();
-        player1.draw(); // this should eventually go in the game logic
         this.x += this.dx
         if (this.x + (49 * this.totalColumns) >= canvas.width || this.x < 0) {
             this.dx *= -1
-            this.y += 8
+            this.y += 3
         }
-        requestAnimationFrame(this.move)
-        // need to repopulate the array constantly??
+    }
+    shoot = () => {
+        let lastRow = this.invadersArray.map(x => x[this.totalRows - 1])
+        let shotX = lastRow[Math.floor(Math.random() * this.totalColumns)].x;
+        let shotY = lastRow[0].y + 30;
+        return new Bullet(shotX, shotY, 2, 10, 'down');
     }
 }
 
 const invasion = new Invasion(5, 11);
 
-invasion.move();
+const gameLogic = {
+    bullet: undefined,
+    play : () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        invasion.move();
+        if (!this.bullet) {
+            if (Math.floor(Math.random()*75) > 73) {
+                this.bullet = invasion.shoot();
+           }
+        }
+        if (this.bullet) {
+            this.bullet.move();
+        }
+        if (this.bullet && this.bullet.checkOverflowCanvas()) {
+            bullet = undefined;
+        }
+        player1.draw();
+        if (this.bullet) {
+            if (this.bullet.checkForHit(player1)) {
+                player1.lives--
+                if (player1.lives <=0 ) {
+                    player1.die()
+                }
+                bullet = undefined
+            }
+        }
+        requestAnimationFrame(gameLogic.play)
+    }
+}
+
+gameLogic.play();
 
 
-
-
-
-/* make a class Alien 
-    status changes to 0 when it's hit.
-*/
-
-
-/* make a class player
-has an x attribute, y attribute, dx, 
-has a detectCollision function
-
-LATER - add the shoot() function. 
-    Is it a constructor that makes a bullet? - which is a line.
-    it has a status (0 or 1). Default status is 1, but if it successfully hits an alien, it is 0.
-    Then the bullet has a checkHit method?
-*/
-
-/*
-make a class gameLogic that can help keep score & stores high score to localStorage
- - gameLogic should also display the player's remaining lives
- - this is part of the interview
-*/
