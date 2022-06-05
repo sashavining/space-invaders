@@ -31,11 +31,8 @@ class Player {
     die () {
         console.log('literally DED')
     }
-
 }
 
-const player1 = new Player
-player1.draw();
 
 class Bullet {
     constructor (x, y, width, height, direction) {
@@ -90,8 +87,8 @@ class Alien {
 class Invasion {
     constructor (totalRows, totalColumns) {
         this.x = 130;
-        this.y = 30;
-        this.dx = 1;
+        this.y = 50;
+        this.dx = .5;
         this.dy = 0;
         this.invadersArray = []
         this.totalRows = totalRows;
@@ -147,12 +144,29 @@ class Invasion {
     }
 }
 
-const invasion = new Invasion(5, 11);
-
 const gameLogic = {
     bullet: undefined,
+    gameActive: false,
+    player1: undefined,
+    invasion: undefined,
+    startGame: () => {
+        if (!gameLogic.gameActive) {
+            console.log('starting game!')
+            player1 = new Player
+            player1.draw();
+            invasion = new Invasion(5, 11);
+            gameLogic.play();
+            gameLogic.gameActive = true;
+        }
+    },
     play : () => {
+        document.removeEventListener('keydown', gameLogic.startGame)
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (player1.lives <= 0 ) {
+            player1.die();
+            gameLogic.loadDeathScreen();
+            return;
+        }
         invasion.move();
         if (!this.bullet) {
             if (Math.floor(Math.random()*75) > 73) {
@@ -169,16 +183,33 @@ const gameLogic = {
         if (this.bullet) {
             if (this.bullet.checkForHit(player1)) {
                 player1.lives--
-                if (player1.lives <=0 ) {
-                    player1.die()
-                }
                 bullet = undefined
             }
         }
         requestAnimationFrame(gameLogic.play)
+    },
+
+    loadStartScreen: () => {
+        ctx.fillStyle = 'white';       
+        ctx.font = '30px Andale Mono';
+        ctx.fillText('Press any key to start', canvas.width / 2 - 210, canvas.height / 2 - 20); 
+        document.addEventListener('keydown', gameLogic.startGame)
+    },
+    loadPlayAgain: () => {
+        ctx.fillStyle = 'white';       
+        ctx.font = '30px Andale Mono';
+        ctx.fillText('Play again?', canvas.width / 2 - 100, canvas.height / 2 + 30); 
+        document.addEventListener('keydown', gameLogic.startGame)
+    },
+    loadDeathScreen: () => {
+        gameLogic.gameActive = false;
+        ctx.fillStyle = 'white';       
+        ctx.font = '30px Andale Mono';
+        ctx.fillText('Oops! You are dead!', canvas.width / 2 - 180, canvas.height / 2 - 20); 
+        setTimeout(gameLogic.loadPlayAgain, 1500);
     }
 }
 
-gameLogic.play();
+gameLogic.loadStartScreen();
 
 
