@@ -89,11 +89,9 @@ class Invasion {
         this.x = 130;
         this.y = 50;
         this.dx = .5;
-        this.dy = 0;
         this.invadersArray = []
         this.totalRows = totalRows;
         this.totalColumns = totalColumns;
-        this.randomNum = 0;
     }
     populateInvaders () {
         for (let column = 0; column < this.totalColumns; column++) {
@@ -151,9 +149,7 @@ const gameLogic = {
     invasion: undefined,
     startGame: () => {
         if (!gameLogic.gameActive) {
-            console.log('starting game!')
             player1 = new Player
-            player1.draw();
             invasion = new Invasion(5, 11);
             gameLogic.play();
             gameLogic.gameActive = true;
@@ -167,6 +163,7 @@ const gameLogic = {
             gameLogic.loadDeathScreen();
             return;
         }
+        player1.draw();
         invasion.move();
         if (!this.bullet) {
             if (Math.floor(Math.random()*75) > 73) {
@@ -179,7 +176,6 @@ const gameLogic = {
         if (this.bullet && this.bullet.checkOverflowCanvas()) {
             bullet = undefined;
         }
-        player1.draw();
         if (this.bullet) {
             if (this.bullet.checkForHit(player1)) {
                 player1.lives--
@@ -195,12 +191,14 @@ const gameLogic = {
         ctx.fillText('Press any key to start', canvas.width / 2 - 210, canvas.height / 2 - 20); 
         document.addEventListener('keydown', gameLogic.startGame)
     },
+
     loadPlayAgain: () => {
         ctx.fillStyle = 'white';       
         ctx.font = '30px Andale Mono';
         ctx.fillText('Play again?', canvas.width / 2 - 100, canvas.height / 2 + 30); 
         document.addEventListener('keydown', gameLogic.startGame)
     },
+
     loadDeathScreen: () => {
         gameLogic.gameActive = false;
         ctx.fillStyle = 'white';       
