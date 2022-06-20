@@ -5,7 +5,7 @@ canvas.height = 600;
 canvas.width = 800;
 
 class Player {
-    constructor() {
+    constructor () {
         this.x = canvas.width / 2 - 25;
         this.y = canvas.height - 50;
         this.dx = 3;
@@ -16,6 +16,8 @@ class Player {
         this.spriteLoaded = false;
         this.sprite.onload = () => this.spriteLoaded = true
         this.sprite.src = 'icons/player_ship.png'
+        this.leftPressed = false;
+        this.rightPressed = false;
     }
     draw () {
         if (this.spriteLoaded) {
@@ -26,6 +28,19 @@ class Player {
         this.lives --
         if (this.lives <= 0) {
             this.die();
+        }
+    }
+    move () {
+        if (this.rightPressed) {
+            this.x += this.dx
+            if (this.x + this.width >= canvas.width) {
+                this.x = canvas.width - this.width;
+            }
+        } else if (this.leftPressed) {
+            this.x -= this.dx
+            if (this.x < 0) {
+                this.x = 0;
+            }
         }
     }
     die () {
@@ -53,7 +68,7 @@ class Bullet {
         this.draw();
         this.y += 5
     }
-    checkForHit(target) { 
+    checkForHit (target) { 
         if (this.y + length >= target.y && this.x < target.x + 50 && this.x > target.x) {
             return true 
         } else return false;
@@ -155,7 +170,21 @@ const gameLogic = {
             gameLogic.gameActive = true;
         }
     },
-    play : () => {
+    handleKeyDown: (e) => {
+        if (e.key === 'Right' || e.key === 'ArrowRight') {
+            player1.rightPressed = true;
+        } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
+            player1.leftPressed = true;
+        }
+    },
+    handleKeyUp: (e) => {
+        if (e.key === 'Left' || e.key === 'ArrowLeft') {
+            player1.leftPressed = false;
+        } else if (e.key === 'Right' || e.key === 'ArrowRight') {
+            player1.rightPressed = false;
+        }
+    },
+    play: () => {
         document.removeEventListener('keydown', gameLogic.startGame)
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (player1.lives <= 0 ) {
@@ -164,6 +193,7 @@ const gameLogic = {
             return;
         }
         player1.draw();
+        player1.move();
         invasion.move();
         if (!this.bullet) {
             if (Math.floor(Math.random()*75) > 73) {
@@ -209,5 +239,7 @@ const gameLogic = {
 }
 
 gameLogic.loadStartScreen();
+document.addEventListener('keydown', gameLogic.handleKeyDown);
+document.addEventListener('keyup', gameLogic.handleKeyUp);
 
 
